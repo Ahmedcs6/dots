@@ -16,7 +16,7 @@ opt.mouse = 'a'                       -- Enable mouse support
 opt.clipboard = 'unnamedplus'         -- Copy/paste to system clipboard
 opt.swapfile = false                  -- Don't use swapfile
 opt.completeopt = 'menuone,noinsert,noselect'  -- Autocomplete options
-opt.scrolloff = 8
+opt.scrolloff = 8                     -- make cursor in the middle of screan
 
 -----------------------------------------------------------
 -- Neovim UI
