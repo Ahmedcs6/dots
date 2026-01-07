@@ -1,0 +1,40 @@
+# Theme
+set font "inconsolata 15"
+set default-bg "#000000" #00
+set default-fg "#F7F7F6" #01
+
+set inputbar-bg "#151515" #00 currently not used
+set inputbar-fg "#FFFFFF" #02
+
+set notification-error-bg "#AC4142" #08
+set notification-error-fg "#151515" #00
+
+set notification-bg "#708090" #0B
+set notification-fg "#151515" #00
+set recolor "true"
+# UI
+set statusbar true
+set inputbar true
+set indexbar true
+set show-scrollbar true
+
+# Navigation
+map j scroll down
+map k scroll up
+map h scroll left
+map l scroll right
+map gg goto 1               # Go to first page
+map G goto last             # Go to last page
+
+# Search
+set search-forward true
+set search-wrap true
+
+# Zoom
+set zoom-step 1.1
+set adjust-open true         # Fit page width on open
+
+# Misc
+set synctex true            # For PDFs from LaTeX
+set keep-zoom true
+set smooth-scroll true
