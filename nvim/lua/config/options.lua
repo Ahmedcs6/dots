@@ -4,3 +4,4 @@
 vim.opt.shiftwidth = 4
 vim.opt.softtabstop = 0
 vim.opt.expandtab = false
+-- vim.cmd("source ~/.cache/wal/colors-wal.vim")
