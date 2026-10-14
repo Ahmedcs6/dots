@@ -1,0 +1,9 @@
+# This file contains fish universal variable definitions.
+# VERSION: 3.0
+SETUVAR --export EDITOR:neovide
+SETUVAR --export --path PATH:/home/ahmed/\x2enpm\x2dglobal/bin\x1e/home/ahmed/\x2eopencode/bin\x1e/home/ahmed/\x2edotnet/tools\x1e/usr/local/sbin\x1e/usr/local/bin\x1e/usr/bin\x1e/usr/bin/site_perl\x1e/usr/bin/vendor_perl\x1e/usr/bin/core_perl\x1e/home/ahmed/\x2elocal/bin\x1e/home/ahmed/bin
+SETUVAR --export QT_QPA_PLATFORMTHEME:qt6ct
+SETUVAR --export SSL_CERT_DIR:/home/ahmed/\x2easpnet/dev\x2dcerts/trust\x3a/etc/ssl/certs
+SETUVAR __fish_initialized:4300
+SETUVAR fish_greeting:
+SETUVAR fish_user_paths:/home/ahmed/\x2enpm\x2dglobal/bin\x1e/home/ahmed/\x2eopencode/bin\x1e/home/ahmed/\x2edotnet/tools
