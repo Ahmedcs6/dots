@@ -1,0 +1,261 @@
+-- Migrated from ~/.config/oldhypr/hyprland.conf (hyprlang) to Lua.
+-- Hyprland 0.55+ / 0.56.x syntax. Tested on 0.56.2.
+-- Refer to https://wiki.hypr.land/configuring/
+-- Old config backed up in ~/.config/oldhypr/ (untouched).
+
+------------------
+---- MONITORS ----
+------------------
+-- See https://wiki.hypr.land/configuring/core/monitors/
+-- Old: monitor=,preferred,auto,auto
+-- (oldhypr/monitors.conf and workspaces.conf were empty, so defaults live here)
+hl.monitor({
+	output = "",
+	mode = "preferred",
+	position = "auto",
+	scale = "auto",
+})
+
+---------------------
+---- MY PROGRAMS ----
+---------------------
+-- Old: $terminal/$fileManager/$menu/$browser
+local terminal = "foot"
+local fileManager = "thunar"
+local menu = "rofi -show drun"
+local browser = "firefox"
+
+-------------------
+---- AUTOSTART ----
+-------------------
+-- See https://wiki.hypr.land/configuring/core/autostart/
+-- Old: exec-once = nm-applet, hyprpaper, quickshell, copyq
+hl.on("hyprland.start", function()
+	hl.exec_cmd("nm-applet")
+	hl.exec_cmd("hyprpaper")
+	hl.exec_cmd("quickshell")
+	hl.exec_cmd("copyq")
+end)
+
+-------------------------------
+---- ENVIRONMENT VARIABLES ----
+-------------------------------
+-- See https://wiki.hypr.land/configuring/core/environment-variables/
+hl.env("XCURSOR_SIZE", "24")
+hl.env("HYPRCURSOR_SIZE", "24")
+
+-----------------------
+----- PERMISSIONS -----
+-----------------------
+-- See https://wiki.hypr.land/configuring/core/advanced-configuration/permissions/
+-- Old file had these commented out; kept commented (restart required).
+-- hl.config({ ecosystem = { enforce_permissions = true } })
+-- hl.permission("/usr/(bin|local/bin)/grim", "screencopy", "allow")
+-- hl.permission("/usr/(lib|libexec|lib64)/xdg-desktop-portal-hyprland", "screencopy", "allow")
+-- hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")
+
+-----------------------
+---- LOOK AND FEEL ----
+-----------------------
+hl.config({
+	general = {
+		gaps_in = 5,
+		gaps_out = 20,
+
+		border_size = 2,
+
+		col = {
+			active_border = { colors = { "rgba(33ccffee)", "rgba(00ff99ee)" }, angle = 45 },
+			inactive_border = "rgba(595959aa)",
+		},
+
+		resize_on_border = false,
+		allow_tearing = false,
+		layout = "dwindle",
+	},
+
+	decoration = {
+		rounding = 5,
+		rounding_power = 2,
+
+		active_opacity = 1.0,
+		inactive_opacity = 0.7,
+
+		shadow = {
+			enabled = true,
+			range = 4,
+			render_power = 3,
+			color = "rgba(1a1a1aee)",
+		},
+
+		blur = {
+			enabled = true,
+			size = 3,
+			passes = 1,
+			vibrancy = 0.1696,
+		},
+	},
+
+	animations = {
+		enabled = true,
+	},
+})
+
+-- Old custom beziers: wind, winIn, winOut, liner (+ built-in "default" used by fade)
+hl.curve("wind", { type = "bezier", points = { { 0.05, 0.9 }, { 0.1, 1.05 } } })
+hl.curve("winIn", { type = "bezier", points = { { 0.1, 1.1 }, { 0.1, 1.1 } } })
+hl.curve("winOut", { type = "bezier", points = { { 0.3, -0.3 }, { 0, 1 } } })
+hl.curve("liner", { type = "bezier", points = { { 1, 1 }, { 1, 1 } } })
+
+-- Old: windows 1,6,wind,slide / windowsIn / windowsOut / windowsMove / border /
+--      borderangle loop / fade default / workspaces
+hl.animation({ leaf = "windows", enabled = true, speed = 6, bezier = "wind", style = "slide" })
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 6, bezier = "winIn", style = "slide" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 5, bezier = "winOut", style = "slide" })
+hl.animation({ leaf = "windowsMove", enabled = true, speed = 5, bezier = "wind", style = "slide" })
+hl.animation({ leaf = "border", enabled = true, speed = 1, bezier = "liner" })
+hl.animation({ leaf = "borderangle", enabled = true, speed = 30, bezier = "liner", style = "loop" })
+hl.animation({ leaf = "fade", enabled = true, speed = 10, bezier = "default" })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 5, bezier = "wind" })
+
+-- "Smart gaps" block from old file, translated but left disabled:
+-- hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
+-- hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
+-- hl.window_rule({ name = "no-gaps-wtv1", match = { float = false, workspace = "w[tv1]" }, border_size = 0, rounding = 0 })
+-- hl.window_rule({ name = "no-gaps-f1",   match = { float = false, workspace = "f[1]" },   border_size = 0, rounding = 0 })
+
+hl.config({
+	dwindle = {
+		preserve_split = true,
+		-- NOTE: dwindle:pseudotile was removed in 0.55 (was commented out anyway).
+	},
+})
+
+hl.config({
+	master = {
+		new_status = "master",
+	},
+})
+
+hl.config({
+	misc = {
+		force_default_wallpaper = 0, -- 0 lets hyprpaper show; 1 forced anime wallpaper over it
+		disable_hyprland_logo = true, -- old value kept (upstream example uses false)
+	},
+})
+
+---------------
+---- INPUT ----
+---------------
+hl.config({
+	input = {
+		kb_layout = "us,ara",
+		kb_variant = "",
+		kb_model = "",
+		kb_options = "grp:alt_shift_toggle",
+		kb_rules = "",
+
+		follow_mouse = 1,
+		sensitivity = 0,
+
+		touchpad = {
+			natural_scroll = true,
+		},
+	},
+})
+
+-- Old file had an empty gestures{} block; nothing to migrate.
+
+-- Per-device config removed: epic-mouse-v1 not present
+-- (hyprctl devices shows Dell mouse/touchpad only). Re-add when device exists:
+-- hl.device({
+--   name        = "epic-mouse-v1",
+--   sensitivity = -0.5,
+-- })
+
+---------------------
+---- KEYBINDINGS ----
+---------------------
+local mainMod = "SUPER"
+
+-- Apps (old: F fullscreen 0 / T terminal / Q killactive / M exit / E files /
+--          N neovide / R menu / D rofi run-shell / W browser / v copyq toggle)
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = 0 }))
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(terminal))
+hl.bind(mainMod .. " + Q", hl.dsp.window.close())
+hl.bind(mainMod .. " + M", hl.dsp.exit())
+hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("neovide"))
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
+hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("rofi -show drun -run-shell-command 'foot -H'"))
+hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
+hl.bind(mainMod .. " + v", hl.dsp.exec_cmd("copyq toggle"))
+
+-- Move focus with mainMod + arrow keys
+hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }))
+hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
+hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "up" }))
+hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "down" }))
+
+-- Switch workspace left/right
+hl.bind(mainMod .. " + l", hl.dsp.focus({ workspace = "e+1" }))
+hl.bind(mainMod .. " + h", hl.dsp.focus({ workspace = "e-1" }))
+
+-- Switch workspaces 1-10 / move window with ALT 1-0
+for i = 1, 10 do
+	local key = i % 10 -- 10 maps to key 0
+	hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
+	hl.bind(mainMod .. " + ALT + " .. key, hl.dsp.window.move({ workspace = i }))
+end
+
+-- Move/resize with mouse drag
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
+-- Old file had resize on mouse:273 commented out; enable if wanted:
+-- hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+
+-- Volume / brightness (old bindel = locked + repeating)
+hl.bind(
+	"XF86AudioRaiseVolume",
+	hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"),
+	{ locked = true, repeating = true }
+)
+hl.bind(
+	"XF86AudioLowerVolume",
+	hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),
+	{ locked = true, repeating = true }
+)
+hl.bind(
+	"XF86AudioMute",
+	hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),
+	{ locked = true, repeating = true }
+)
+hl.bind(
+	"XF86AudioMicMute",
+	hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),
+	{ locked = true, repeating = true }
+)
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"), { locked = true, repeating = true })
+
+-- Media keys (old bindl = locked)
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
+
+-- Keyboard layout us <-> ara.
+-- SUPER is mainMod, so XKB grp:super_space_toggle is unreliable (Hyprland
+-- eats Super first). Use a Hyprland bind on `current` keyboard instead,
+-- plus Alt+Shift via kb_options above as backup.
+hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("hyprctl switchxkblayout current next"))
+
+-- Screenshots (ported from oldhypr/*.sh, now in ~/.config/hypr/scripts/)
+hl.bind("Print", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot_full.sh"))
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd("~/.config/hypr/scripts/screenshot_area.sh"))
+
+--------------------------------
+---- WINDOWS AND WORKSPACES ----
+--------------------------------
+-- Old file had no active windowrules (only commented smart-gaps + QuickShell source).
+-- Add new v3 window_rule / v2 layer_rule blocks here as needed, e.g.:
+-- hl.window_rule({ name = "float-term", match = { class = "^(kitty|foot)$" }, float = true })

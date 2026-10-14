@@ -1,0 +1,30 @@
+{
+    "label": "shutdown",
+    "action": "systemctl poweroff",
+    "text": "shutdown",
+    "keybind": "s"
+}
+{
+    "label": "reboot",
+    "action": "systemctl reboot",
+    "text": "reboot",
+    "keybind": "r"
+}
+{
+    "label": "logout",
+    "action": "hyprctl dispatch exit 0 || loginctl terminate-user $USER",
+    "text": "logout",
+    "keybind": "e"
+}
+{
+    "label": "suspend",
+    "action": "playerctl pause; systemctl suspend",
+    "text": "suspend",
+    "keybind": "u"
+}
+{
+    "label": "lock",
+    "action": "pidof hyprlock || hyprlock",
+    "text": "lock",
+    "keybind": "l"
+}

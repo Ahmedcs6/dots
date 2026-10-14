@@ -1,0 +1,16 @@
+@import "theme.rasi"
+
+configuration {
+    modi: "drun";
+    show-icons: true;
+    drun-show-actions: false;
+    drun-use-desktop-cache: true;
+    drun-reload-desktop-cache: true;
+    matching: "normal";
+    drun-categories: "";
+    display-drun:"";
+    drun-display-format: "{name}";
+}
+textbox-prompt-colon {
+    enabled: false;
+}

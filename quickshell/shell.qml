@@ -1,169 +1,113 @@
+//@ pragma Env QS_NO_RELOAD_POPUP=1
+//@ pragma Env QSG_RENDER_LOOP=threaded
+//@ pragma Env QT_QUICK_FLICKABLE_WHEEL_DECELERATION=10000
+
 import Quickshell
-import Quickshell.Wayland
-import Quickshell.Io
-import Quickshell.Hyprland
-import QtQuick
-import QtQuick.Layouts
-import "panel"
+import Quickshell.Services.Notifications
+import QtQuick 6.10
+import "services" as QsServices
+import "config" as QsConfig
+import "modules/osd"
+import "modules"
 
 ShellRoot {
     id: root
+    
+    // Initialize services immediately
+    readonly property var notifs: QsServices.Notifs
+    readonly property var pywal: QsServices.Pywal
+    readonly property var audio: QsServices.Audio
+    readonly property var brightness: QsServices.Brightness
+    readonly property var gamingMode: QsServices.GamingMode
+    
+    // Only register as a notification daemon if explicitly enabled.
+    // This avoids noisy warnings when another daemon is active.
+    Loader {
+        active: QsConfig.Config.notifications.registerServer
+        sourceComponent: NotificationServer {
+            keepOnReload: false
+            actionsSupported: true
+            bodyHyperlinksSupported: true
+            bodyMarkupSupported: true
+            imageSupported: true
+            persistenceSupported: true
 
-    // Theme colors
-    property color colBg: "#1a1b26"
-    property color colFg: "#a9b1d6"
-    property color colMuted: "#444b6a"
-    property color colCyan: "#0db9d7"
-    property color colPurple: "#ad8ee6"
-    property color colRed: "#f7768e"
-    property color colYellow: "#e0af68"
-    property color colBlue: "#7aa2f7"
-
-    // Font
-    property string fontFamily: "JetBrainsMono Nerd Font"
-    property int fontSize: 14
-
-    // System info properties
-    property string kernelVersion: "Linux"
-    property int diskUsage: 0
-    property int volumeLevel: 0
-    property string activeWindow: "Window"
-    property string currentLayout: "Tile"
-
-    // Volume level (wpctl for PipeWire)
-    Process {
-        id: volProc
-        command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
-        stdout: SplitParser {
-            onRead: data => {
-                if (!data) return
-                var match = data.match(/Volume:\s*([\d.]+)/)
-                if (match) {
-                    volumeLevel = Math.round(parseFloat(match[1]) * 100)
-                }
+            onNotification: notif => {
+                notif.tracked = true
+                QsServices.Logger.debug("Notifs", `Received: ${notif.appName ?? ""} ${notif.summary ?? ""}`)
+                notifs.addNotification(notif)
             }
         }
-        Component.onCompleted: running = true
+    }
+    
+    Loader {
+        id: barLoader
+        asynchronous: true
+        source: "modules/bar/BarWrapper.qml"
     }
 
-    // Active window title
-    Process {
-        id: windowProc
-        command: ["sh", "-c", "hyprctl activewindow -j | jq -r '.title // empty'"]
-        stdout: SplitParser {
-            onRead: data => {
-                if (data && data.trim()) {
-                    activeWindow = data.trim()
-                }
-            }
-        }
-        Component.onCompleted: running = true
+    // Dashboard is opt-in via shell.json; don't load when disabled.
+    Loader {
+        id: dashboardLoader
+        active: QsConfig.Config.dashboard.enabled
+        asynchronous: true
+        source: "modules/dashboard/DashboardWindow.qml"
     }
 
-    // Event-based updates for window/layout (instant)
-    Connections {
-        target: Hyprland
-        function onRawEvent(event) {
-            windowProc.running = true
-            layoutProc.running = true
-        }
+    // Notification popups in top-right corner
+    Loader {
+        id: notificationPopupsLoader
+        asynchronous: true
+        source: "modules/bar/components/NotificationPopups.qml"
+    }
+    
+    // OSD overlays (volume and brightness)
+    Wrapper {
+        pywal: root.pywal
     }
 
-    // Backup timer for window/layout (catches edge cases)
+    property bool focusModePreviousDnd: false
+
+    BatteryMonitor {}
+
     Timer {
-        interval: 200
-        running: true
+        interval: 60000
+        running: QsServices.Settings.focusModeEnabled
         repeat: true
         onTriggered: {
-            windowProc.running = true
-            layoutProc.running = true
+            if (QsServices.Settings.focusModeMinutesLeft > 0) {
+                QsServices.Settings.focusModeMinutesLeft--
+            }
+            if (QsServices.Settings.focusModeMinutesLeft <= 0) {
+                QsServices.Settings.focusModeEnabled = false
+            }
         }
     }
 
-    Variants {
-        model: Quickshell.screens
-
-        PanelWindow {
-            property var modelData
-            screen: modelData
-
-            anchors {
-								top: true
-								left: true
-                right: true
-            }
-
-            implicitHeight: 30
-            color: root.colBg
-
-            margins {
-                top: 0
-                bottom: 0
-                left: 0
-                right: 0
-            }
-
-            Rectangle {
-                anchors.fill: parent
-                color: root.colBg
-
-                RowLayout {
-                    anchors.fill: parent
-                    spacing: 0
-
-                    Item { width: 8 }
-										
-										Logo {}
-
-                    Item { width: 8 }
-
-                    WorkspaceBar {}
-
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 8
-                        Layout.rightMargin: 8
-                        color: root.colMuted
-                    }
-
-                    Text {
-                        text: activeWindow
-                        color: root.colPurple
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.fillWidth: true
-                        Layout.leftMargin: 8
-                        elide: Text.ElideRight
-                        maximumLineCount: 1
-                    }
-
-
-                    Text {
-                        text: "Vol: " + volumeLevel + "%"
-                        color: root.colPurple
-                        font.pixelSize: root.fontSize
-                        font.family: root.fontFamily
-                        font.bold: true
-                        Layout.rightMargin: 8
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 1
-                        Layout.preferredHeight: 16
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.leftMargin: 0
-                        Layout.rightMargin: 8
-                        color: root.colMuted
-                    }
-
-                    DateTime {}
-                    Item { width: 8 }
-                }
+    Connections {
+        target: notifs
+        function onDndChanged() {
+            if (!notifs.dnd && QsServices.Settings.focusModeEnabled) {
+                QsServices.Settings.focusModeEnabled = false
             }
         }
+    }
+
+    Connections {
+        target: QsServices.Settings
+        function onFocusModeEnabledChanged() {
+            if (QsServices.Settings.focusModeEnabled) {
+                // Save previous DND state when enabling
+                root.focusModePreviousDnd = notifs.dnd
+            } else {
+                // Restore DND only if focus mode's state wasn't manually overridden
+                if (notifs.dnd === true)
+                    notifs.dnd = root.focusModePreviousDnd
+            }
+        }
+    }
+
+    Component.onCompleted: {
+        QsServices.Logger.info("Shell", "Loaded")
     }
 }
-

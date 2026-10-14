@@ -51,32 +51,5 @@ require("lazy").setup({
     },
   },
 })
--- require("conform").setup({
---   formatters = {
---     lua = {
---       -- using stylua for Lua
---       function()
---         return {
---           exe = "stylua",
---           args = { "--indent-type", "Spaces", "--indent-width", "4", "-" },
---           stdin = true,
---         }
---       end,
---     },
---     python = { "black" }, -- Black uses 4 spaces by default
---     javascript = { "prettier" },
---     cpp = {
---       function()
---         return {
---           exe = "clang-format",
---           args = {
---             "--assume-filename",
---             vim.api.nvim_buf_get_name(0),
---             "--style={BasedOnStyle: LLVM, IndentWidth: 4, TabWidth: 4, UseTab: Never}",
---           },
---           stdin = true,
---         }
---       end,
---     },
---   },
--- })
+-- NOTE: formatter config lives in lua/plugins/conform.lua (conform.nvim,
+-- modern `formatters_by_ft` API), not here.

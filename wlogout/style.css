@@ -1,0 +1,82 @@
+* {
+    background-image: none;
+    box-shadow: none;
+}
+
+window {
+    background-color: rgba(30, 30, 46, 0.50);
+}
+
+
+button {
+    border-radius: 0;
+    border-color: #cba6f7;
+    border-width: 2px 1px;
+    border-style: solid;
+    text-decoration-color: #cdd6f4;
+    color: #cdd6f4;
+    background-color: #181825;
+    background-repeat: no-repeat;
+    background-position: 50% 45%;
+    background-size: 30%;
+    /* Icon sits near the top, label sits at the bottom:
+       big top padding reserves room for the icon so text
+       never overlaps it. */
+    padding-top: 110px;
+    padding-bottom: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+    /* NOTE: keep vertical margin small — the outer -T/-B args from wlogout.sh
+     already center the grid. 200px here overflowed 768p screens (buttons
+     collapsed to 0 height). 60px keeps the pill-strip look on 768p–1080p. */
+    margin: 100px 2px;
+}
+
+
+button:first-child {
+    border-radius: 100px 0 0 100px;
+    border-width: 2px 1px 2px 2px;
+}
+
+button:last-child {
+    border-radius: 0 100px 100px 0;
+    border-width: 2px 2px 2px 1px;
+
+}
+
+button:focus,
+button:active,
+button:hover {
+    /* 20% Overlay 2, 80% mantle */
+    background-color: rgb(48, 50, 66);
+    outline-style: none;
+}
+
+
+#lock {
+    background-image: url("/home/ahmed/.config/wlogout/icons/lock.svg");
+}
+
+#logout {
+    background-image: url("/home/ahmed/.config/wlogout/icons/logout.svg");
+}
+
+#suspend {
+    background-image: url("/home/ahmed/.config/wlogout/icons/suspend.svg");
+}
+
+#hibernate {
+    background-image: url("/home/ahmed/.config/wlogout/icons/hibernate.svg");
+}
+
+#shutdown {
+    background-image: url("/home/ahmed/.config/wlogout/icons/shutdown.svg");
+}
+
+#reboot {
+    background-image: url("/home/ahmed/.config/wlogout/icons/reboot.svg");
+}
+
+button {
+    color: #cba6f7;
+}

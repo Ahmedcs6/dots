@@ -1,0 +1,17 @@
+module qs.components
+Anim 1.0 Anim.qml
+NotificationCard 1.0 NotificationCard.qml
+AuroraSurface 1.0 AuroraSurface.qml
+Elevation 1.0 Elevation.qml
+IconButton 1.0 IconButton.qml
+Material3Popup 1.0 Material3Popup.qml
+NetworkGraph 1.0 NetworkGraph.qml
+PopupButton 1.0 PopupButton.qml
+StateLayer 1.0 StateLayer.qml
+StyledFlickable 1.0 StyledFlickable.qml
+StyledListView 1.0 StyledListView.qml
+SwipeGesture 1.0 SwipeGesture.qml
+PerfHeroCard 1.0 PerfHeroCard.qml
+PerfChartCard 1.0 PerfChartCard.qml
+CircleProgress 1.0 CircleProgress.qml
+CircleCard 1.0 CircleCard.qml

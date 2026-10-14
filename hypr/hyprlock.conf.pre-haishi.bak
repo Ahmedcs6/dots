@@ -1,0 +1,26 @@
+# hyprlock entry point (loaded from ~/.config/hypr/hyprlock.conf).
+# Layout/assets live in ~/.config/hyprlock/ (colors, layouts, scripts,
+# wallpapers). This split is intentional: entry here, theme assets there.
+$hyprlockDir = $HOME/.config/hyprlock
+
+# Source the colors from wallbash
+# See the file first to see the equivalent colors
+source = $hyprlockDir/colors.conf
+
+# Script Path
+$music = $hyprlockDir/scripts/playerctlock.sh
+$album = $hyprlockDir/scripts/hlock_mpris.sh
+$battery = $hyprlockDir/scripts/battery.sh
+$location = $hyprlockDir/scripts/location.sh
+$weather = $hyprlockDir/scripts/weather.sh
+
+source = $hyprlockDir/layouts/layout1-1366x768.conf #nice for me
+# source = $hyprlockDir/layouts/layout13-1366x768.conf # nice for me
+# source = $hyprlockDir/layouts/layout5.conf
+# source = $hyprlockDir/layouts/layout6.conf
+# source = $hyprlockDir/layouts/layout8.conf #nice for me
+# source = $hyprlockDir/layouts/layout9.conf
+# source = $hyprlockDir/layouts/layout10.conf
+# source = $hyprlockDir/layouts/layout11.conf
+# source = $hyprlockDir/layouts/layout13.conf
+# source = $hyprlockDir/layouts/layout17.conf
