@@ -33,6 +33,7 @@ local terminal = "foot"
 local fileManager = "thunar"
 local menu = "rofi -show drun"
 local browser = "firefox"
+local wallpaper_cmd = os.getenv("HOME") .. "/.config/hypr/scripts/wallpaper.sh"
 
 -------------------
 ---- AUTOSTART ----
@@ -42,7 +43,7 @@ local browser = "firefox"
 -- cliphist (was: copyq daemon). Picker is on SUPER+v (cliphist-rofi.sh).
 hl.on("hyprland.start", function()
 	hl.exec_cmd("nm-applet")
-	hl.exec_cmd("hyprpaper")
+	hl.exec_cmd("awww-daemon")
 	hl.exec_cmd("quickshell")
 	hl.exec_cmd("systemctl --user start hyprpolkitagent")
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
@@ -223,7 +224,8 @@ hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("rofi -show drun -run-shell-command '
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + v", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/cliphist-rofi.sh"))
 hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(wlogout_cmd))
-
+-- wallpaper toggle
+hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd(wallpaper_cmd))
 -- Lock screen (SHIFT: plain SUPER+L is workspace +1 below — letter binds are
 -- case-insensitive, so SUPER+l and SUPER+L would both fire)
 hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("pidof hyprlock || hyprlock"))
