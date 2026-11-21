@@ -223,7 +223,7 @@ FocusScope {
         property string label: ""
         property string subLabel: ""
         property real usage: -1
-        property color accent: "#ffffff"
+        property color accent: pywal?.primary ?? Qt.rgba(1, 1, 1, 0.85)
         required property var history
 
         readonly property bool usageKnown: usage >= 0

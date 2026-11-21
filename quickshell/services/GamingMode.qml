@@ -151,6 +151,15 @@ Singleton {
                 root._initializing = false
             }
         }
+
+        // If the governor file is unreadable (rare: missing cpufreq), the
+        // stdout collector never fires and _initializing would wedge in
+        // place — forever suppressing DND/brightness/governor side effects.
+        // Clear it on whichever signal arrives first (idempotent).
+        onExited: {
+            QsServices.Logger.debug("GamingMode", `Governor check exited (status ${exitCode})`)
+            root._initializing = false
+        }
     }
     
     // Reference to services (will be set by Control Center)

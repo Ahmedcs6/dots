@@ -210,11 +210,6 @@ Singleton {
         refreshSavedNetworks();
     }
 
-    // NOTE: `pollingActive` is retained for compatibility but no longer drives
-    // a timer: saved networks refresh on NetworkManager events (see
-    // monitorProc above) and after every user action.
-    property bool pollingActive: true
-
     Process {
         id: getNetworks
 

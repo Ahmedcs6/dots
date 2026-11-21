@@ -74,6 +74,11 @@ Singleton {
     // State colors
     readonly property color success: color2      // Green
     readonly property color onSuccess: background
+
+    // Foreground for text/icons sitting on a saturated accent background
+    // (DND pill, action chips): black stays legible on every pywal palette.
+    readonly property color onAccent: "#000000"
+
     readonly property color warning: color3      // Orange
     readonly property color onWarning: background
     readonly property color error: color1        // Red
@@ -129,12 +134,26 @@ Singleton {
     }
     
     // Load colors from pywal cache
-    FileView {
+    FileView
+    {
         id: pywalFile
+
         path: QsConfig.Config.paths.pywalColors
         watchChanges: true
-        onLoaded: root.loadColors(text())
-        onFileChanged: root.loadColors(text())
-        onLoadFailed: err => QsServices.Logger.warn("Pywal", `colors.json not loaded: ${FileViewError.toString(err)}`)
+
+        Component.onCompleted: reload()
+
+        onFileChanged: reload()
+
+        onLoaded: {
+            root.loadColors(text())
     }
+
+    onLoadFailed: err => {
+        QsServices.Logger.warn(
+            "Pywal",
+            `colors.json not loaded: ${FileViewError.toString(err)}`
+        )
+    }
+}
 }

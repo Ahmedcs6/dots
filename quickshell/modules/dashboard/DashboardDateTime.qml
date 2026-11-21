@@ -1,5 +1,6 @@
 import QtQuick 6.10
 import QtQuick.Layouts 6.10
+import "../../services" as QsServices
 
 // Date/time header extracted from DashboardWindow.
 // Owns the weekday + full date/time labels plus the status SummaryChips.
@@ -70,7 +71,7 @@ RowLayout {
         required property string icon
         required property string label
         required property color accent
-        property color textColor: "#ffffff"
+        property color textColor: QsServices.Pywal.onSurface
         property string fontFamily: "Inter"
         width: chipRow.implicitWidth + 18
         height: 34

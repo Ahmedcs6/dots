@@ -3,6 +3,7 @@
 //@ pragma Env QT_QUICK_FLICKABLE_WHEEL_DECELERATION=10000
 
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Notifications
 import QtQuick 6.10
 import "services" as QsServices
@@ -39,7 +40,13 @@ ShellRoot {
             }
         }
     }
-    
+    IpcHandler {
+        target: "theme"
+
+        function reloadConfig(): void {
+            Quickshell.reload()
+        }
+    }
     Loader {
         id: barLoader
         asynchronous: true

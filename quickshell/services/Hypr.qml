@@ -64,14 +64,14 @@ Singleton {
         return occupied;
     }
 
-    // Refresh timer to ensure updates when events are missed
-    Timer {
-        interval: 5000
-        running: true
-        repeat: true
-        onTriggered: {
-            Hyprland.refreshWorkspaces();
-        }
+    // No periodic refresh timer: the Connections block below already covers
+    // every workspace/window/monitor event (including the v2 variants), so a
+    // recurring 5s refreshWorkspaces() IPC round-trip was pure waste. Only an
+    // initial warm refresh on shell load is kept.
+    Component.onCompleted: {
+        Hyprland.refreshWorkspaces()
+        Hyprland.refreshToplevels()
+        Hyprland.refreshMonitors()
     }
 
     // Debounce burst refreshes (e.g. movewindow storms) into one IPC round-trip

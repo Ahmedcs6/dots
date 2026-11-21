@@ -160,7 +160,7 @@ Singleton {
     
     // Clear notifications from specific app
     function clearApp(appName) {
-        notifications.filter(n => n.appName === appName).forEach(n => n.close());
+        notifications.filter(n => !!n && n.appName === appName).forEach(n => n.close());
         QsServices.Logger.info("Notifs", `Cleared notifications from: ${appName}`)
     }
 

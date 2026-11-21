@@ -68,7 +68,6 @@ Singleton {
     // sysfs temperature sensor paths (hwmon numbers vary, so resolve the
     // file paths once instead of re-scanning every tick).
     function detectHardware() {
-        detectGpu()
         hardwareDetectProc.running = true
     }
     
@@ -202,8 +201,8 @@ Singleton {
                 const memData = memAndNet[0].trim()
                 const memParts = memData.split(/\s+/)
                 if (memParts.length >= 3) {
-                    root.memTotal = parseInt(memParts[1])
-                    root.memUsed = parseInt(memParts[2])
+                    root.memTotal = parseInt(memParts[1]) || 0
+                    root.memUsed = parseInt(memParts[2]) || 0
                     // Push chart history (0-100)
                     const mp = root.memTotal > 0 ? (root.memUsed / root.memTotal) * 100 : 0
                     root.memHistory = [...root.memHistory.slice(-59), Math.max(0, Math.min(100, mp))]
@@ -214,8 +213,8 @@ Singleton {
                     const netData = memAndNet[1].trim()
                     const netParts = netData.split(/\s+/)
                     if (netParts.length >= 2) {
-                        const rxBytes = parseInt(netParts[0])
-                        const txBytes = parseInt(netParts[1])
+                        const rxBytes = parseInt(netParts[0]) || 0
+                        const txBytes = parseInt(netParts[1]) || 0
                         const currentTime = Date.now() / 1000
 
                         if (root.lastNetTime > 0) {
@@ -255,8 +254,8 @@ Singleton {
             onRead: data => {
                 const parts = data.trim().split(/\s+/)
                 if (parts.length >= 3) {
-                    diskTotal = parseInt(parts[1])
-                    diskUsed = parseInt(parts[2])
+                    diskTotal = parseInt(parts[1]) || 0
+                    diskUsed = parseInt(parts[2]) || 0
                 }
             }
         }
@@ -300,13 +299,6 @@ Singleton {
         }
     }
 
-    // Legacy GPU type probe (kept for compatibility, superseded by
-    // hardwareDetectProc which also resolves names and temp sensors).
-    function detectGpu() {
-        if (!hardwareDetectProc.running)
-            hardwareDetectProc.running = true
-    }
-    
     // NVIDIA GPU monitoring
     Process {
         id: nvidiaGpuProc

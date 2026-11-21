@@ -8,7 +8,8 @@ alias la="ls -A"
 alias l='ls -CF'
 alias c='clear'
 # alias mm='sudo mkdir /run/media/data; sudo mount /dev/nvme0n1p4 /run/media/data'
-alias svu='sudo ip link set wlan0 down;sudo macchanger wlan0 -m, --mac=<Your MAC>;sudo ip link set wlan0 up'
+# alias svu='sudo ip link set wlan0 down;sudo macchanger wlan0 -m, --mac=<Your Mac>;sudo ip link set wlan0 up'
+alias svu2='sudo ip link set wlan0 down;sudo macchanger wlan0 -m, --mac=<Your Mac>;sudo ip link set wlan0 up'
 alias graph='git log --oneline --graph --decorate --all'
 alias nice='bat -l conf'
 # [[ -z $DISPLAY ]] &&
@@ -50,7 +51,6 @@ set -Ux PATH $PATH ~/.local/bin ~/bin
 set -Ux SSL_CERT_DIR "$HOME/.aspnet/dev-certs/trust:/etc/ssl/certs"
 set -Ux EDITOR neovide
 set -U fish_greeting ""
-set -x TERM kitty
 # Kvantum theme for Qt apps
 set -Ux QT_QPA_PLATFORMTHEME qt6ct
 # Initialize Starship

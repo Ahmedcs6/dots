@@ -8,15 +8,13 @@ Item {
     
     readonly property var notifs: QsServices.Notifs
     readonly property var pywal: QsServices.Pywal
-    
-    // Wait for pywal to load before showing content
-    readonly property bool pywalLoaded: pywal && pywal.foreground !== undefined
-    
-    // Safe color accessors with fallbacks
-    readonly property color textColor: pywalLoaded ? pywal.foreground : "#ffffff"
-    readonly property color accentColor: pywalLoaded ? pywal.color4 : "#a6e3a1"
-    readonly property color urgentColor: pywalLoaded ? pywal.color1 : "#f38ba8"
-    readonly property color surfaceColor: pywalLoaded ? pywal.background : "#1e1e2e"
+
+    // Pywal is a singleton with non-null property defaults; direct reads
+    // replace the old `pywalLoaded ? x : hex` fallbacks.
+    readonly property color textColor: pywal.foreground
+    readonly property color accentColor: pywal.color4
+    readonly property color urgentColor: pywal.color1
+    readonly property color surfaceColor: pywal.background
     
     ColumnLayout {
         anchors.fill: parent
@@ -48,7 +46,7 @@ Item {
                     text: notifs.dnd ? "󰂛" : "󰂚"
                     font.family: "Material Design Icons"
                     font.pixelSize: 18
-                    color: notifs.dnd ? "#000000" : root.textColor
+                    color: notifs.dnd ? pywal.onAccent : root.textColor
                 }
                 
                 MouseArea {
@@ -308,7 +306,7 @@ Item {
                                         font.pixelSize: 11
                                         font.weight: Font.Medium
                                         color: actionMouseArea.containsMouse ?
-                                               "#000000" : root.textColor
+                                               pywal.onAccent : root.textColor
                                     }
                                     
                                     MouseArea {

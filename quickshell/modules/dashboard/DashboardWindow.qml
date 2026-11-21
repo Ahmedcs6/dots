@@ -1,6 +1,6 @@
+import "."
 import QtQuick 6.10
 import QtQuick.Layouts 6.10
-import QtQuick.Controls 6.10 as QQC
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Services.UPower
@@ -19,7 +19,6 @@ PanelWindow {
     readonly property var time: QsServices.Time
     readonly property var systemUsage: QsServices.SystemUsage
     readonly property var players: QsServices.Players
-    readonly property var screenshot: QsServices.Screenshot
     readonly property var network: QsServices.Network
     readonly property var audio: QsServices.Audio
     readonly property var powerProfiles: QsServices.PowerProfiles
@@ -35,7 +34,7 @@ PanelWindow {
     readonly property color cSubText: pywal.onSurfaceMuted
     readonly property color cBorder: pywal.outlineVariant
     readonly property int batteryPercent: Math.round((battery?.percentage ?? 0) * 100)
-    readonly property bool hasMedia: players?.active !== null
+    readonly property bool hasMedia: (players?.active ?? null) !== null
     readonly property var currentDate: time.date
     readonly property int currentMonth: currentDate.getMonth()
     readonly property int currentYear: currentDate.getFullYear()
@@ -64,10 +63,6 @@ PanelWindow {
 
     function closeDashboard() {
         shouldShow = false
-    }
-
-    function daysInMonth(year, month) {
-        return new Date(year, month + 1, 0).getDate()
     }
 
     screen: QsServices.Hypr.focusedScreen ?? Quickshell.screens[0]

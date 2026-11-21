@@ -33,7 +33,6 @@ local terminal = "foot"
 local fileManager = "thunar"
 local menu = "rofi -show drun"
 local browser = "firefox"
-local wallpaper_cmd = os.getenv("HOME") .. "/.config/hypr/scripts/wallpaper.sh"
 
 -------------------
 ---- AUTOSTART ----
@@ -44,7 +43,11 @@ local wallpaper_cmd = os.getenv("HOME") .. "/.config/hypr/scripts/wallpaper.sh"
 hl.on("hyprland.start", function()
 	hl.exec_cmd("nm-applet")
 	hl.exec_cmd("awww-daemon")
-	hl.exec_cmd("quickshell")
+	-- Log wrapper: plain exec loses all output (stdout→Hyprland journal);
+	-- reload-quickshell.sh tees QML warnings/errors into
+	-- ~/.local/state/quickshell/quickshell.log (kills any running instance,
+	-- then starts a logged one — harmless no-op on the pgrep side at boot).
+	hl.exec_cmd(os.getenv("HOME") .. "/.config/quickshell/reload-quickshell.sh")
 	hl.exec_cmd("systemctl --user start hyprpolkitagent")
 	hl.exec_cmd("wl-paste --type text --watch cliphist store")
 	hl.exec_cmd("wl-paste --type image --watch cliphist store")
@@ -56,7 +59,8 @@ end)
 -- See https://wiki.hypr.land/configuring/core/environment-variables/
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
-
+hl.env("TERMINAL", "foot")
+hl.env("TERM", "xterm-256color")
 -----------------------
 ----- PERMISSIONS -----
 -----------------------
@@ -154,8 +158,7 @@ hl.animation({ leaf = "workspaces", enabled = true, speed = 6, bezier = "swipe",
 hl.config({
 	dwindle = {
 		preserve_split = true,
-		special_scale_factor = 0.8,
-		-- NOTE: dwindle:pseudotile was removed in 0.55 (was commented out anyway).
+		-- special_scale_factor removed
 	},
 })
 
@@ -169,7 +172,7 @@ hl.config({
 
 hl.config({
 	misc = {
-		force_default_wallpaper = 0, -- 0 lets hyprpaper show; 1 forced anime wallpaper over it
+		force_default_wallpaper = 0, -- wallpaper is handled by awww-daemon
 		disable_hyprland_logo = true, -- old value kept (upstream example uses false)
 	},
 })
@@ -213,6 +216,8 @@ local mainMod = "SUPER"
 -- NOTE: M used to be hl.dsp.exit() (instant logout, no confirm). Now routed
 -- through wlogout like Escape to prevent accidental session loss.
 local wlogout_cmd = os.getenv("HOME") .. "/.config/hypr/scripts/wlogout.sh"
+-- Absolute paths: "~" does not reliably expand in exec_cmd.
+local quickpaper = os.getenv("HOME") .. "/.config/quickshell/hyprquickpaper"
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = 0 }))
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
@@ -221,11 +226,19 @@ hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("neovide"))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("rofi -show drun -run-shell-command 'foot --hold {cmd}'"))
-hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(browser))
+hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + v", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/cliphist-rofi.sh"))
 hl.bind(mainMod .. " + Escape", hl.dsp.exec_cmd(wlogout_cmd))
--- wallpaper toggle
-hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd(wallpaper_cmd))
+hl.bind(
+	mainMod .. " + W",
+	hl.dsp.exec_cmd(quickpaper .. "/toggle.sh " .. quickpaper .. "/shell.qml"),
+	{ description = "Open HyprQuickPaper Wallpaper Picker" }
+)
+hl.bind(
+	mainMod .. " + SHIFT + W",
+	hl.dsp.exec_cmd(quickpaper .. "/toggle.sh " .. quickpaper .. "/settings.qml"),
+	{ description = "Open HyprQuickPaper Layout Settings" }
+)
 -- Lock screen (SHIFT: plain SUPER+L is workspace +1 below — letter binds are
 -- case-insensitive, so SUPER+l and SUPER+L would both fire)
 hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("pidof hyprlock || hyprlock"))
@@ -307,7 +320,6 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true 
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("hyprctl switchxkblayout current next"))
 
 -- Screenshots (ported from oldhypr/*.sh, now in ~/.config/hypr/scripts/)
--- Absolute paths: "~" does not reliably expand in exec_cmd.
 hl.bind("Print", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/screenshot_full.sh"))
 hl.bind("SHIFT + Print", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/screenshot_area.sh"))
 
@@ -339,5 +351,10 @@ hl.layer_rule({ name = "rofi-blur", match = { namespace = "rofi" }, blur = true,
 hl.layer_rule({ name = "rofi-ignore-alpha", match = { namespace = "rofi" }, ignore_alpha = 0 })
 hl.layer_rule({ name = "wlogout-blur", match = { namespace = "logout_dialog" }, blur = true, blur_popups = true })
 hl.layer_rule({ name = "wlogout-ignore-alpha", match = { namespace = "logout_dialog" }, ignore_alpha = 0 })
+-- slurp/hyprshot selection overlays must not fade out on close: the fade
+-- kept the frame visible at grim time and baked the border/dim cage into
+-- the capture. noanim = unmaps instantly instead.
+hl.layer_rule({ name = "noanim-selection", match = { namespace = "selection" }, no_anim = true })
+hl.layer_rule({ name = "noanim-hyprpicker", match = { namespace = "hyprpicker" }, no_anim = true })
 hl.animation({ leaf = "layersIn", enabled = true, speed = 4, bezier = "default", style = "popin 80%" })
 hl.animation({ leaf = "layersOut", enabled = true, speed = 3, bezier = "default", style = "popin 80%" })

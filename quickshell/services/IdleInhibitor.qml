@@ -7,81 +7,55 @@ import "." as QsServices
 
 Singleton {
     id: root
-    
+
     property bool inhibited: false
-    property int inhibitorPid: -1
-    
+
     onInhibitedChanged: {
         QsServices.Logger.debug("IdleInhibitor", `Inhibited changed: ${inhibited}`)
-        if (inhibited) {
-            enableInhibitor()
-        } else {
-            disableInhibitor()
-        }
-    }
-    
-    function enableInhibitor() {
-        // Guard against double-enable leaking orphan sleep processes
-        if (root.inhibitorPid > 0 || enableProcess.running)
-            return
-        QsServices.Logger.info("IdleInhibitor", "Enabling")
-        enableProcess.running = true
-    }
-    
-    // Enable idle inhibitor using systemd-inhibit
-    Process {
-        id: enableProcess
-        command: ["/bin/sh", "-c", "systemd-inhibit --what=idle --who=QuickShell --why='Caffeine mode enabled' sleep infinity & echo $!"]
-        running: false
-        
-        stdout: SplitParser {
-            onRead: data => {
-                const pid = parseInt(data.trim())
-                if (!isNaN(pid) && pid > 0) {
-                    root.inhibitorPid = pid
-                    QsServices.Logger.debug("IdleInhibitor", `Started PID=${pid}`)
-                }
-            }
-        }
-    }
-    
-    // Disable idle inhibitor
-    Process {
-        id: disableProcess
-        // Kill only our own inhibitor PID. Never use overbroad
-        // `pkill -f 'systemd-inhibit.*QuickShell'` — it can kill
-        // unrelated processes via full-cmdline match.
-        command: ["/bin/sh", "-c", "kill \"$1\" 2>/dev/null", "sh", ""]
-        running: false
-
-        onExited: {
-            root.inhibitorPid = -1
-            QsServices.Logger.debug("IdleInhibitor", "Stopped")
-        }
+        inhibitorProc.running = inhibited
     }
 
-    function disableInhibitor() {
-        QsServices.Logger.info("IdleInhibitor", "Disabling")
-        if (root.inhibitorPid > 0) {
-            // bind PID via positional arg (no interpolation)
-            disableProcess.command = ["/bin/sh", "-c", "kill \"$1\" 2>/dev/null", "sh", String(root.inhibitorPid)]
-            disableProcess.running = true
-        } else {
-            root.inhibitorPid = -1
-        }
+    // Owned child process: systemd-inhibit holds the logind idle-inhibit lock
+    // while it itself runs `sleep infinity`. Quickshell tracks this process
+    // directly — setting running=false (and shell destruction/reload)
+    // terminates the whole child tree, so there is nothing to leak.
+    //
+    // Never go back to `systemd-inhibit ... sleep infinity & echo $!`: $! is
+    // the *wrapper* PID; killing it under kill-mode orphans the sleep child
+    // and the inhibitor process-tree outlives the toggle.
+    Process {
+        id: inhibitorProc
+        command: [
+                    "systemd-inhibit",
+                    "--what=idle",
+                    "--who=QuickShell",
+                    "--why=Caffeine mode enabled",
+                    "sleep", "infinity"
+                ]
+        running: false
     }
-    
+
     Component.onCompleted: {
         QsServices.Logger.debug("IdleInhibitor", "Service loaded")
     }
 
+    // Belt-and-braces belt: fired only from Component.onDestruction, in case
+    // destruction doesn't reap the owned child. Static pattern, no
+    // interpolation → safe under AGENTS.md shell-command rules.
+    Process {
+        id: cleanupProc
+        command: [
+                    "/bin/sh", "-c",
+                    "pkill -f 'systemd-inhibit --what=idle --who=QuickShell' 2>/dev/null; true",
+                    "sh"
+                ]
+        running: false
+    }
+
     Component.onDestruction: {
-        // Best-effort cleanup so `sleep infinity` doesn't outlive the shell.
-        // Synchronous spawn is not available here; use a fire-and-forget kill
-        // of our own PID only.
-        if (root.inhibitorPid > 0) {
-            disableProcess.command = ["/bin/sh", "-c", "kill \"$1\" 2>/dev/null", "sh", String(root.inhibitorPid)]
-            disableProcess.running = true
+        if (inhibited) {
+            QsServices.Logger.debug("IdleInhibitor", "Best-effort cleanup on destroy")
+            cleanupProc.running = true
         }
     }
 }

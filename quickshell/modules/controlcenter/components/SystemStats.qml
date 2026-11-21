@@ -2,16 +2,17 @@ import QtQuick 6.10
 import QtQuick.Layouts 6.10
 import Quickshell
 import "../../../components/effects"
+import "../../../services" as QsServices
 
 Item {
     id: root
 
     required property var systemUsage
-    property var pywal
+    property var pywal: QsServices.Pywal
 
-    readonly property color cSurfaceContainer: pywal ? pywal.surfaceContainerHigh : "#111111"
-    readonly property color cOnSurface: pywal ? pywal.foreground : "#dddddd"
-    readonly property color cOnSurfaceVariant: pywal ? pywal.onSurfaceMuted : "#999999"
+    readonly property color cSurfaceContainer: pywal.surfaceContainerHigh
+    readonly property color cOnSurface: pywal.foreground
+    readonly property color cOnSurfaceVariant: pywal.onSurfaceMuted
 
     Layout.fillWidth: true
     Layout.preferredHeight: 110

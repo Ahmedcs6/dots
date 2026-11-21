@@ -2,19 +2,20 @@ import QtQuick 6.10
 import QtQuick.Layouts 6.10
 import QtQuick.Controls 6.10
 import "../../../components/effects"
+import "../../../services" as QsServices
 
 Item {
     id: root
 
     required property var audio
-    property var pywal
+    property var pywal: QsServices.Pywal
 
     readonly property int currentVolume: audio.percentage
     readonly property bool isMuted: audio.muted
 
-    readonly property color cSurface: pywal ? pywal.surfaceContainer : "#1a1a1a"
-    readonly property color cOnSurface: pywal ? pywal.foreground : "#dddddd"
-    readonly property color cPrimary: pywal ? pywal.primary : "#88cc88"
+    readonly property color cSurface: pywal.surfaceContainer
+    readonly property color cOnSurface: pywal.foreground
+    readonly property color cPrimary: pywal.primary
 
     Layout.fillWidth: true
     Layout.preferredHeight: 64

@@ -2,6 +2,7 @@ import QtQuick 6.10
 import QtQuick.Layouts 6.10
 import QtQuick.Controls 6.10
 import "../../../components/effects"
+import "../../../services" as QsServices
 
 Item {
     id: root
@@ -10,8 +11,10 @@ Item {
     property string label: ""
     property string subLabel: ""
     property bool active: false
-    property color activeColor: "#a6e3a1"
-    property color textColor: "#e6e6e6"
+    // Pywal singleton is never null — direct token defaults, no hex fallbacks.
+    property var pywal: QsServices.Pywal
+    property color activeColor: pywal.success
+    property color textColor: pywal.onSurface
     signal clicked()
 
     Layout.fillWidth: true

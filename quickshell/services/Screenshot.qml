@@ -17,6 +17,9 @@ Singleton {
 
     property string _slurpGeometry: ""
     property string _windowGeomText: ""
+
+    // Geometry of the region being captured; carried across the settle timer.
+    property string _pendingRegionGeometry: ""
     // Pending capture path: only promoted to lastScreenshotPath on exit code 0.
     // Prevents stale paths to nonexistent files and wrong-file announces on
     // concurrent captures (single shared screenshotProc).
@@ -60,6 +63,18 @@ Singleton {
         }
     }
     
+    // Delayed-region capture: same slurp/grim unmap race as
+    // ~/.config/hypr/scripts/screenshot_area.sh — grim sample must wait a
+    // frame for the layer-shell surface to disappear.
+    Timer {
+        id: regionSettleTimer
+        interval: 100
+        repeat: false
+        onTriggered: {
+            screenshotProc.exec(["grim", "-g", root._pendingRegionGeometry, root._pendingScreenshotPath])
+        }
+    }
+
     // Get region geometry with slurp
     Process {
         id: slurpProc
@@ -86,7 +101,10 @@ Singleton {
 
             QsServices.Logger.debug("Screenshot", `Capturing region: ${geometry}`)
             root._pendingScreenshotPath = filepath
-            screenshotProc.exec(["grim", "-g", geometry, filepath])
+            // Same unmap race as the script path: hold the capture for one
+            // frame so slurp's surface is gone before grim samples it.
+            _pendingRegionGeometry = geometry
+            regionSettleTimer.running = true
         }
     }
     
