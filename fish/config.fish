@@ -12,6 +12,7 @@ alias c='clear'
 alias svu2='sudo ip link set wlan0 down;sudo macchanger wlan0 -m, --mac=<Your Mac>;sudo ip link set wlan0 up'
 alias graph='git log --oneline --graph --decorate --all'
 alias nice='bat -l conf'
+alias pat='cat ~/pat.txt'
 # [[ -z $DISPLAY ]] &&
 if test (tty) = /dev/tty1
     exec start-hyprland
